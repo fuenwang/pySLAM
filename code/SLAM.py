@@ -43,10 +43,13 @@ def Run(config, dataset, frame1, frame2):
     b[:, 0:2] = match_pt2
     a[:, :] /= np.linalg.norm(a, axis=1)[:, np.newaxis]
     b[:, :] /= np.linalg.norm(b, axis=1)[:, np.newaxis]
-    print a
-    M = pyopengv.relative_pose_ransac(np.array(a), np.array(b), str("EIGHTPT"), 0.004, 1000)
+    #print a
+    print b
+    M = pyopengv.relative_pose_ransac(np.array(a), np.array(b), "NISTER", 0.004, 1000)
+    print M[:, 0:3]
+    print M[:, 3]
     #M = pyopengv.relative_pose_fivept_nister(a, b)
-    print M
+    #print M
 
 if __name__ == '__main__':
     path = sys.argv[1]
