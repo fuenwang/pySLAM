@@ -9,6 +9,12 @@ intrisic_rgb = np.array([
     ])
 #print intrisic_rgb
 
+def ConcatPose(R, T):
+    out = np.zeros([3, 4], np.float64)
+    out[:, :3] = R
+    out[:, 3] = T
+    return out
+
 class CameraModel:
     def __init__(self, height, width):
         self.h = height
@@ -17,6 +23,7 @@ class CameraModel:
         self.y = np.tile(np.arange(0, height), [width, 1]).T
 
     def PointFromDepth(self, depth):
+        # Covert depth map to 3d points
         h = self.h
         w = self.w
         x = self.x.reshape([h*w])
@@ -33,4 +40,31 @@ class CameraModel:
         for i in range(3):
             points[:, i] = points[:, i] / norm * depth_flat
 
-        return points
+        return points.reshape([h, w, 3])
+
+    def PerspectiveProject(self, points, pose):
+        # Project 3d points into image plane
+        # pose[0:3] is rotation, pose[3:] is translation
+        h = self.h
+        w = self.w
+    
+        points_flat = points.reshape([h * w, 3])
+
+        R = cv2.Rodrigues(pose[:3])
+        M = ConcatPose(R, pose[3:])
+
+        project_matrix = np.dot(intrisic_rgb, M)
+
+
+        homo_product = np.dot(project_matrix, points_flat.T).T
+        for i in range(2):
+            homo_product[:, i] /= homo_product[:, 2]
+
+        return np.round(homo_product[:, :2]).astype(np.int32)
+
+
+
+
+
+
+
