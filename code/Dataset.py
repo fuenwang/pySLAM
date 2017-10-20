@@ -18,7 +18,7 @@ class Dataset:
         mat = io.loadmat(path)['data'][0][0]
         img = cv2.cvtColor(mat[1], cv2.COLOR_RGB2BGR)
         depth = mat[0]
-
+        depth[depth == 0] = -1
         return [img, depth]
 
 if __name__ == '__main__':
